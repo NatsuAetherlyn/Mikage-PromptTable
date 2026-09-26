@@ -1,0 +1,10 @@
+# Normalise line endings in the repository; check out as-is.
+* text=auto eol=lf
+
+# binary assets
+*.ico  binary
+*.png  binary
+*.exe  binary
+
+# keep documentation readable on GitHub
+*.md   text eol=lf

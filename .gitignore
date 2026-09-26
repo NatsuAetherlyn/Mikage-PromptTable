@@ -1,0 +1,26 @@
+# build / packaging artifacts
+build/
+dist/
+*.spec
+*.exe
+
+# python caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# app data (kept out of the repo: user annotations & model cache)
+data/
+gallery_data.json
+model_library.json
+
+# os / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# inno setup scratch
+*.iss.bak
+Output/

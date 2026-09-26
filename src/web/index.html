@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" href="assets/app_32.png">
+  <title>Mikage PromptTable</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="gallery">
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <div class="resize-strip rs-top" data-edge="top"></div>
+  <div class="resize-strip rs-bottom" data-edge="bottom"></div>
+  <div class="resize-strip rs-left" data-edge="left"></div>
+  <div class="resize-strip rs-right" data-edge="right"></div>
+  <div class="resize-strip rs-tl" data-edge="tl"></div>
+  <div class="resize-strip rs-tr" data-edge="tr"></div>
+  <div class="resize-strip rs-bl" data-edge="bl"></div>
+  <div class="resize-strip rs-br" data-edge="br"></div>
+
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="tb-icon-btn" title="Mikage PromptTable">
+        <img id="tbIcon" src="assets/app_32.png" alt="">
+      </div>
+      <div class="tb-drag" id="tbDrag">
+        <div class="tb-brand">
+          <span class="tb-name">Mikage PromptTable</span>
+          <span class="tb-sep">—</span>
+          <span class="tb-scope" id="tbScope">全部条目</span>
+          <span class="tb-count" id="tbCount">0 条</span>
+        </div>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-btn" id="btnWinMin" title="最小化">
+          <svg viewBox="0 0 12 12"><path d="M2 6h8" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button class="tb-btn" id="btnWinMax" title="最大化 / 还原">
+          <svg class="ico-max" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.1">
+            <rect x="1.7" y="1.7" width="8.6" height="8.6" rx="1.4"/>
+          </svg>
+          <svg class="ico-restore" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.1">
+            <path d="M3.7 3.5V2.6a.9.9 0 0 1 .9-.9h5a.9.9 0 0 1 .9.9v5a.9.9 0 0 1-.9.9h-.9"/>
+            <rect x="1.7" y="3.9" width="7.2" height="7.2" rx="1.3"/>
+          </svg>
+        </button>
+        <button class="tb-btn tb-close" id="btnWinClose" title="关闭">
+          <svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="searchInput" placeholder="搜索…" autocomplete="off" spellcheck="false">
+          <button class="clear-search-btn" id="clearSearchBtn">&times;</button>
+        </div>
+      </div>
+
+      <div class="tb-gallery-controls gallery-controls">
+        <div class="view-switch">
+          <button class="view-btn active" id="btnViewMasonry" title="瀑布流画廊视图">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/>
+              <rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>
+            </svg><span>瀑布流</span>
+          </button>
+          <button class="view-btn" id="btnViewTable" title="Excel 表格视图">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/>
+            </svg><span>表格</span>
+          </button>
+        </div>
+        <div class="columns-slider-wrap" id="columnsSliderWrap" title="瀑布流列数">
+          <span class="slider-label">列数</span>
+          <input type="range" id="columnsRange" min="2" max="6" value="4" step="1">
+          <span class="slider-val" id="columnsVal">4 列</span>
+        </div>
+        <div class="divider-vertical"></div>
+        <button class="glass-btn btn-primary" id="btnImportImages" title="批量导入图片并自动解析元数据">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg><span>导入图片</span>
+        </button>
+        <button class="glass-btn" id="btnExportExcel" title="导出为 Excel (.xlsx)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg><span>导出 Excel</span>
+        </button>
+        <div class="dropdown-wrap">
+          <button class="glass-btn btn-icon" id="btnMoreMenu" title="更多操作">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/>
+            </svg>
+          </button>
+          <div class="glass-dropdown" id="moreDropdown">
+            <button type="button" class="dropdown-item" id="btnImportExcel"><span>从 Excel 导入数据</span></button>
+            <button type="button" class="dropdown-item" id="btnAddEmptyItem"><span>新增空白条目</span></button>
+            <button type="button" class="dropdown-item" id="btnPurgeEmpty"><span>清理空条目</span></button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" id="btnToggleTagFull">
+              <span class="dd-check" id="tagFullCheck">✓</span><span>卡片显示完整标注 Tag</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item danger" id="btnClearAll"><span>清空所有条目</span></button>
+          </div>
+        </div>
+        <button class="glass-btn btn-icon active-toggle" id="btnToggleInspector" title="显示 / 隐藏编辑面板">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="library-controls hidden" id="libraryControls">
+        <button class="glass-btn btn-primary" id="btnRescan" title="重新扫描所有模型目录">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg><span>扫描模型</span>
+        </button>
+        <button class="glass-btn" id="btnAddRoot" title="添加模型目录 (ComfyUI / SD WebUI)">添加目录</button>
+        <button class="glass-btn" id="btnHashAll" title="为缺失哈希的模型批量计算并同步 Civitai">一键同步全部</button>
+        <button class="glass-btn" id="btnAddManual" title="手动登记一个模型">手动登记</button>
+      </div>
+    </div>
+
+    <main class="main-workspace" id="mainWorkspace">
+      <nav class="glass-sidebar" id="sidebar">
+        <button class="sidebar-collapse-btn" id="btnCollapseSidebar" title="收起侧边栏">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div class="nav-tabs">
+          <button class="nav-tab active" id="tabGallery" title="图片注释画廊">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+            </svg><span>图库</span>
+          </button>
+          <button class="nav-tab" id="tabLibrary" title="模型库">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg><span>模型库</span>
+          </button>
+        </div>
+
+        <div class="sidebar-section" id="categorySection">
+          <div class="sidebar-header">
+            <span class="sidebar-title">展览分区</span>
+            <button class="sidebar-add-btn" id="btnAddCategory" title="新建分区">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="category-list" id="categoryList"></div>
+        </div>
+
+        <div class="sidebar-section" id="folderSection" hidden>
+          <div class="sidebar-header">
+            <span class="sidebar-title">模型目录</span>
+            <button class="sidebar-add-btn" id="btnCollapseTree" title="折叠 / 展开全部目录">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 9 12 3 20 9"/><polyline points="4 15 12 21 20 15"/>
+              </svg>
+            </button>
+          </div>
+          <div class="folder-tree" id="folderTree"></div>
+        </div>
+
+      </nav>
+
+      <button class="sidebar-expand-handle" id="btnExpandSidebar" title="展开侧边栏">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+
+      <section class="content-viewport" id="contentViewport">
+        <div id="galleryPage">
+          <div class="viewport-topbar">
+            <div class="current-scope" id="currentScopeLabel">全部条目</div>
+            <div class="scope-actions">
+              <button class="chip-btn" id="btnAddItemToScope">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>新增条目</span>
+              </button>
+            </div>
+          </div>
+          <div class="masonry-container columns-4" id="masonryView"></div>
+          <div class="table-container" id="tableView" hidden>
+            <table class="glass-table">
+              <thead><tr>
+                <th style="width:44px">#</th><th style="width:88px">分区</th><th style="width:110px">人物</th>
+                <th style="width:150px">标注 Tag</th><th>Prompt（主图）</th><th style="width:110px">预览图</th>
+                <th style="width:170px">使用推荐</th><th style="width:96px">操作</th>
+              </tr></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <h3 id="emptyTitle">该分区还没有条目</h3>
+            <p id="emptyDesc">把 AI 图片直接拖进窗口，或点击「导入图片」开始注释</p>
+            <button class="glass-btn btn-primary" id="btnEmptyImport">导入图片</button>
+          </div>
+        </div>
+
+        <div id="libraryPage" hidden>
+          <div class="lib-toolbar">
+            <div class="lib-filters">
+              <button class="lib-chip active" data-type="">全部</button>
+              <button class="lib-chip" data-type="checkpoint">Checkpoint</button>
+              <button class="lib-chip" data-type="lora">LoRA</button>
+              <button class="lib-chip" data-type="unsorted">未分类</button>
+              <select class="glass-select slim" id="libBaseSelect"><option value="">全部大类</option></select>
+            </div>
+            <div class="lib-actions"><span class="lib-scan-hint hidden" id="libScanHint">扫描中…</span></div>
+          </div>
+          <div class="ft-scope-bar" id="libScopeBar" hidden></div>
+          <div class="lib-roots" id="libRoots"></div>
+          <div class="lib-grid" id="libGrid"></div>
+          <div class="empty-state" id="libEmpty" hidden>
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+            </div>
+            <h3>模型库为空</h3>
+            <p>点击「扫描模型」检索 ComfyUI 等目录，或「添加目录」注册新的模型路径</p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="glass-inspector" id="inspectorPanel">
+        <div class="editor-header">
+          <div class="editor-title-row">
+            <input type="text" class="glass-input strong" id="fieldCharacter" spellcheck="false">
+            <button class="close-inspector-btn" id="btnCloseInspector" title="收起面板">&times;</button>
+          </div>
+          <div class="editor-meta-row">
+            <select class="glass-select" id="fieldCategory"></select>
+            <select class="glass-select" id="fieldFamily" title="模型大类标记（同步 checkpoints / diffusion_models 下的文件夹）"></select>
+            <div class="scheme-switch" id="schemeSwitch">
+              <button type="button" data-scheme="tags" class="active" title="同 Tag 对比不同人物/动作">Tag 对比</button>
+              <button type="button" data-scheme="model" title="同内容对比不同模型/风格">模型对比</button>
+            </div>
+          </div>
+          <div class="editor-file-meta" id="editorFileMeta">未选择条目</div>
+        </div>
+
+        <div class="editor-body">
+          <div class="no-selection-hint" id="noSelectionHint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <p>点击任意卡片或表格行，在此编辑该条目的多图、标注 Tag、模型与提示词</p>
+          </div>
+
+          <div class="editor-content" id="editorContent" hidden>
+            <div class="field-group">
+              <div class="field-head">
+                <span class="field-label">图片 <span class="label-hint" id="imgCountHint"></span></span>
+                <button class="mini-btn accent" id="btnAddImage">＋ 添加图片</button>
+              </div>
+              <div class="img-strip" id="imgStrip"></div>
+              <div class="img-strip-actions" id="imgActions">
+                <button class="mini-btn" id="btnReplaceImage" title="重新选择文件替换该图">更换</button>
+                <button class="mini-btn" id="btnReparseImg" title="重新读取该图内嵌元数据">重解析</button>
+                <button class="mini-btn" id="btnPrimaryImage" title="设为封面主图">设为主图</button>
+                <button class="mini-btn ghost" id="btnRemoveImage" title="从条目移除该图">移除</button>
+              </div>
+              <div class="slideshow-bar">
+                <span class="ss-label">幻灯片</span>
+                <div class="ss-modes" id="ssModes">
+                  <button type="button" data-ss="off" class="active">关闭</button>
+                  <button type="button" data-ss="seq">顺序</button>
+                  <button type="button" data-ss="rev">倒序</button>
+                  <button type="button" data-ss="shuffle">随机</button>
+                </div>
+                <label class="ss-auto" title="勾选后自动连播；不勾选时每次点击封面切换一张">
+                  <input type="checkbox" id="ssAuto"><span>自动连播</span>
+                </label>
+                <select class="glass-select slim ss-interval" id="ssInterval" title="连播间隔">
+                  <option value="600">0.6 秒</option>
+                  <option value="1000">1 秒</option>
+                  <option value="1500">1.5 秒</option>
+                  <option value="2500">2.5 秒</option>
+                  <option value="4000">4 秒</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="scheme-block" id="schemeTags">
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">标注类 Tag</span>
+                </div>
+                <div class="tag-pills-flow editable" id="annotTagsFlow"></div>
+                <input type="text" class="glass-input slim" id="annotTagInput" spellcheck="false">
+              </div>
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">使用提示词
+                    <span class="label-hint">每张图独立</span>
+                    <span class="prompt-stats" id="imgStats">0 字符</span>
+                  </span>
+                  <div class="field-actions">
+                    <button class="mini-btn" id="btnApplyPromptAll"
+                            title="把当前这张图的提示词覆盖到本条目全部图片">应用到全部</button>
+                    <button class="mini-btn" id="btnFormatPrompt">分行</button>
+                    <button class="mini-btn" id="btnCompactPrompt">单行</button>
+                    <button class="mini-btn accent" id="btnCopyPrompt">复制</button>
+                  </div>
+                </div>
+                <textarea class="glass-textarea code-font" id="fieldFullPrompt" rows="6" spellcheck="false"></textarea>
+                <div class="lora-pills" id="loraPills"></div>
+              </div>
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">细分提示词
+                    <span class="label-hint">可手改</span>
+                  </span>
+                  <div class="field-actions">
+                    <button class="mini-btn" id="btnApplyResidualAll"
+                            title="把细分提示词覆盖到本条目全部图片">应用到全部</button>
+                    <button class="mini-btn" id="btnRecalcResidual" title="按标注类 Tag 重新生成">重算</button>
+                  </div>
+                </div>
+                <textarea class="glass-textarea code-font small" id="fieldResidualPrompt" rows="3" spellcheck="false"></textarea>
+              </div>
+
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">使用模型
+                    <span class="label-hint">全组共用</span>
+                  </span>
+                  <button class="mini-btn accent" id="btnAddTagModel" title="添加底模或 LoRA">＋ 添加模型</button>
+                </div>
+                <div class="model-list" id="tagModelList"></div>
+              </div>
+            </div>
+
+            <div class="scheme-block" id="schemeModel" hidden>
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">使用模型
+                    <span class="label-hint">每张图独立</span>
+                  </span>
+                  <button class="mini-btn accent" id="btnAddImgModel" title="添加底模或 LoRA">＋ 添加模型</button>
+                </div>
+                <div class="model-list" id="imgModelList"></div>
+              </div>
+              <div class="field-group">
+                <div class="field-head">
+                  <span class="field-label">共用提示词
+                    <span class="label-hint">全组共用</span>
+                  </span>
+                  <div class="field-actions">
+                    <button class="mini-btn" id="btnCopySharedPrompt">复制</button>
+                  </div>
+                </div>
+                <textarea class="glass-textarea code-font" id="fieldSharedPrompt" rows="5"
+                          spellcheck="false"></textarea>
+                <div class="lora-pills" id="loraPillsShared"></div>
+              </div>
+              <div class="field-group">
+                <div class="field-head"><span class="field-label">风格提示词</span></div>
+                <textarea class="glass-textarea code-font small" id="fieldSharedStyle" rows="2" spellcheck="false"></textarea>
+              </div>
+              <div class="field-group">
+                <div class="field-head"><span class="field-label">通用提示词</span></div>
+                <textarea class="glass-textarea code-font small" id="fieldSharedGeneric" rows="2" spellcheck="false"></textarea>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <details class="glass-details">
+                <summary class="field-label">负向提示词 (Negative Prompt)</summary>
+                <textarea class="glass-textarea code-font small" id="fieldNegPrompt" rows="3" spellcheck="false"></textarea>
+              </details>
+            </div>
+            <div class="field-group">
+              <div class="field-head">
+                <span class="field-label">使用推荐 / LoRA 权重 / 备注</span>
+                <button class="mini-btn ghost" id="btnCopyRec">复制</button>
+              </div>
+              <input type="text" class="glass-input" id="fieldRec" spellcheck="false">
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-footer">
+          <button class="glass-btn btn-secondary" id="btnLocateFile" title="在资源管理器中定位选中图片">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg><span>定位原图</span>
+          </button>
+          <button class="glass-btn btn-danger" id="btnDeleteCurrent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+            </svg><span>删除条目</span>
+          </button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="lightbox-modal" id="lightboxModal">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-dialog">
+      <div class="lightbox-header">
+        <span class="lightbox-title" id="lightboxTitle">高清原图</span>
+        <button class="lightbox-close-btn" id="lightboxCloseBtn">&times;</button>
+      </div>
+      <div class="lightbox-img-wrap">
+        <img id="lightboxImg" src="" alt="">
+        <video id="lightboxVideo" class="lightbox-video" src="" autoplay loop controls
+               playsinline preload="auto" style="display:none"></video>
+      </div>
+      <div class="lightbox-footer">
+        <div class="lightbox-prompt-preview" id="lightboxPrompt"></div>
+        <button class="glass-btn btn-primary" id="btnLightboxCopy">复制 Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="askModal">
+    <div class="modal-backdrop" id="askBackdrop"></div>
+    <div class="ask-dialog">
+      <div class="ask-title" id="askTitle">确认操作</div>
+      <div class="ask-message" id="askMessage"></div>
+      <input type="text" class="glass-input" id="askInput" style="display:none" spellcheck="false">
+      <div class="ask-actions">
+        <button class="glass-btn" id="askCancel">取消</button>
+        <button class="glass-btn btn-primary" id="askConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="drag-drop-overlay" id="dragDropOverlay">
+    <div class="drag-drop-content">
+      <div class="upload-icon-pulse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </div>
+      <h2>松开鼠标导入图片</h2>
+      <p id="dragScopeHint">将自动解析内嵌的 AI Prompt 与 LoRA 参数</p>
+    </div>
+  </div>
+
+  <div class="model-suggest" id="modelSuggest"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- right-click context menu -->
+  <div class="ctx-menu" id="ctxMenu"></div>
+  <script src="js/window-drag.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
