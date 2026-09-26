@@ -1,3 +1,6 @@
+该软件基本全都由 DeepSeek V4.1 Flash 完成。
+
+
 # Mikage PromptTable
 
 AI 画廊与提示词注释工作台 —— 一个用于整理、对比和标注 AI 绘图提示词的 Windows 桌面应用。
