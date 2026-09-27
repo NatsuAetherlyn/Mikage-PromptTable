@@ -1,5 +1,5 @@
 /**
- * Mikage PromptTable v2 — gallery + model library + dual-scheme annotation editor.
+ * PromptTable v2 — gallery + model library + dual-scheme annotation editor.
  */
 (function () {
   'use strict';
@@ -22,6 +22,9 @@
 
   // ---- persisted display preferences ----
   var uiSettings = { cardTagFull: false, sidebarCollapsed: false };
+  // icon chosen for this launch (cropped avatar + the original artwork)
+  var launchIcon = { custom: false, src: '', source_src: '', name: '', group: '',
+                     source: '', id: '' };
 
   async function loadSettings() {
     if (!api() || !api().get_settings) return;
@@ -833,9 +836,17 @@
     item.annotation_tags.forEach(function (tag) {
       var pill = document.createElement('span');
       pill.className = 'tag-pill annot';
-      pill.title = '点击移除';
-      pill.innerHTML = escapeHtml(tag) + '<span class="pill-x">×</span>';
-      pill.addEventListener('click', function () {
+      pill.title = '点击复制 · 点右侧 × 删除';
+      pill.innerHTML = escapeHtml(tag) + '<span class="pill-x" title="删除该 Tag">×</span>';
+
+      // the tag text copies; only the × removes (avoids accidental deletion)
+      pill.addEventListener('click', function (e) {
+        if (e.target.classList.contains('pill-x')) return;   // handled below
+        e.stopPropagation();
+        copyText(tag, '已复制标注 Tag：' + tag);
+      });
+      pill.querySelector('.pill-x').addEventListener('click', function (e) {
+        e.stopPropagation();
         item.annotation_tags = item.annotation_tags.filter(function (t) { return t !== tag; });
         scheduleSave();
         renderEditor();
@@ -1027,6 +1038,15 @@
     } else {
       await api().open_civitai_search(name);
     }
+  }
+
+  // Copy the entry's annotated tags as a comma-separated list.
+  function copyAnnotTags(item) {
+    item = item || selected();
+    if (!item) return;
+    var tags = (item.annotation_tags || []).filter(function (t) { return t; });
+    if (!tags.length) { showToast('该条目还没有标注 Tag', 'error'); return; }
+    copyText(tags.join(', '), '已复制 ' + tags.length + ' 个标注 Tag');
   }
 
   function renderLoraPills(container, prompt) {
@@ -2052,9 +2072,33 @@
       $('fieldFullPrompt').value = cur.full_prompt;
       scheduleSave();
     });
-    $('btnCopyPrompt').addEventListener('click', function () {
-      copyText($('fieldFullPrompt').value, '已复制使用提示词');
+    // ---- copy menu: the user picks what to copy ----
+    var copyMenu = $('copyPromptMenu');
+    $('btnCopyPrompt').addEventListener('click', function (e) {
+      e.stopPropagation();
+      copyMenu.classList.toggle('show');
     });
+    copyMenu.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      copyMenu.classList.remove('show');
+      var it = selected();
+      if (!it) return;
+      switch (btn.dataset.copy) {
+        case 'annot':
+          copyAnnotTags(it);
+          break;
+        case 'residual':
+          copyText($('fieldResidualPrompt').value, '已复制细分提示词');
+          break;
+        default:
+          copyText($('fieldFullPrompt').value, '已复制使用提示词');
+      }
+    });
+    document.addEventListener('click', function () { copyMenu.classList.remove('show'); });
+
+    $('btnCopyAnnotTags').addEventListener('click', function () { copyAnnotTags(); });
     $('btnRecalcResidual').addEventListener('click', function () {
       var it = selected(), cur = selectedImage();
       if (!it || !cur) return;
@@ -2267,6 +2311,16 @@
     var purgeBtn = $('btnPurgeEmpty');
     if (purgeBtn) purgeBtn.addEventListener('click', function () { purgeEmptyEntries(false); });
 
+    var iconBtn = $('tbIconBtn');
+    if (iconBtn) {
+      iconBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showLaunchIconSource();
+      });
+    }
+    var shellBtn = $('btnShellRegister');
+    if (shellBtn) shellBtn.addEventListener('click', toggleShellRegistration);
+
     var tagFullBtn = $('btnToggleTagFull');
     if (tagFullBtn) {
       tagFullBtn.addEventListener('click', function () {
@@ -2458,6 +2512,7 @@
       api().win32('is_max').then(function (isMax) {
         document.body.classList.toggle('maximized', !!isMax);
       });
+      refreshShellStatus();
     });
     if (!boot()) {
       var tries = 0;

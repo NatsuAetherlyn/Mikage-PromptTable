@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Mikage PromptTable v2 — Glassmorphism Design System (frameless window)
+   PromptTable v2 — Glassmorphism Design System (frameless window)
    ========================================================================== */
 
 :root {
@@ -729,8 +729,20 @@ body[data-page="library"] #categorySection { display: none; }
 .tag-pill:hover { background: rgba(99, 102, 241, 0.25); color: #fff; }
 .tag-pill.annot { color: #86efac; border-color: rgba(134, 239, 172, 0.35); background: rgba(16, 185, 129, 0.12); }
 .tag-pill.annot:hover { background: rgba(16, 185, 129, 0.28); }
-.tag-pill .pill-x { margin-left: 5px; color: var(--text-muted); font-size: 10px; }
-.tag-pill .pill-x:hover { color: #fda4af; }
+.tag-pill .pill-x {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 0 4px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+}
+.tag-pill .pill-x:hover { background: rgba(244, 63, 94, .3); color: #ffe4e6; }
+/* annotated tags are actionable: make that obvious */
+.tag-pill.annot { cursor: copy; }
 
 /* lora pills */
 .lora-pills { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -1090,6 +1102,8 @@ body[data-page="library"] #categorySection { display: none; }
   padding: 0;
   margin-left: 8px;
   border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease;
 }
 .tb-icon-btn img {
   width: 19px; height: 19px;
@@ -1097,8 +1111,12 @@ body[data-page="library"] #categorySection { display: none; }
   box-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
   transition: transform 0.15s ease;
 }
-.tb-icon-btn:hover { background: rgba(255, 255, 255, 0.08); }
-.tb-icon-btn:hover img { transform: scale(1.08); }
+.tb-icon-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.tb-icon-btn:hover img {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 12px rgba(99,102,241,.55);
+}
+.tb-icon-btn:active img { transform: scale(1.02); }
 
 /* suggestion list must escape the field-group clipping */
 .model-suggest { z-index: 2400; }
@@ -1634,3 +1652,22 @@ body.card-tag-full .card-tag.is-var { font-weight: 600; }
   visibility: hidden;
 }
 .dd-check.on { visibility: visible; }
+
+/* ==========================================================================
+   Patch v5.1 — copy affordances
+   ========================================================================== */
+
+/* the copy button opens a small menu; keep it tight and above everything */
+.glass-dropdown.mini {
+  width: 168px;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1200;
+}
+.glass-dropdown.mini .dropdown-item { font-size: 12px; }
+.glass-dropdown.mini .dropdown-item:hover { background: rgba(99,102,241,.22); }
+
+.mini-btn .caret { font-size: 9px; opacity: .75; margin-left: 1px; }
+
+/* the copy chip on the card stays a single obvious control */
+.card-copy-chip { cursor: pointer; }

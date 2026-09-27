@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <link rel="icon" type="image/png" href="assets/app_32.png">
-  <title>Mikage PromptTable</title>
+  <title>PromptTable</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="gallery">
@@ -24,12 +24,12 @@
 
   <div class="app-shell">
     <header class="titlebar">
-      <div class="tb-icon-btn" title="Mikage PromptTable">
+      <button class="tb-icon-btn" id="tbIconBtn" title="点击查看本次图标原图">
         <img id="tbIcon" src="assets/app_32.png" alt="">
-      </div>
+      </button>
       <div class="tb-drag" id="tbDrag">
         <div class="tb-brand">
-          <span class="tb-name">Mikage PromptTable</span>
+          <span class="tb-name">PromptTable</span>
           <span class="tb-sep">—</span>
           <span class="tb-scope" id="tbScope">全部条目</span>
           <span class="tb-count" id="tbCount">0 条</span>
@@ -108,6 +108,10 @@
             <button type="button" class="dropdown-item" id="btnImportExcel"><span>从 Excel 导入数据</span></button>
             <button type="button" class="dropdown-item" id="btnAddEmptyItem"><span>新增空白条目</span></button>
             <button type="button" class="dropdown-item" id="btnPurgeEmpty"><span>清理空条目</span></button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" id="btnShellRegister">
+              <span class="dd-check" id="shellCheck">✓</span><span>注册到搜索 / 启动器</span>
+            </button>
             <div class="dropdown-divider"></div>
             <button type="button" class="dropdown-item" id="btnToggleTagFull">
               <span class="dd-check" id="tagFullCheck">✓</span><span>卡片显示完整标注 Tag</span>
@@ -309,7 +313,11 @@
             <div class="scheme-block" id="schemeTags">
               <div class="field-group">
                 <div class="field-head">
-                  <span class="field-label">标注类 Tag</span>
+                  <span class="field-label">标注类 Tag
+                    <span class="label-hint">点 Tag 复制 · 点 × 删除</span>
+                  </span>
+                  <button class="mini-btn ghost" id="btnCopyAnnotTags"
+                          title="复制全部标注 Tag（逗号分隔）">复制</button>
                 </div>
                 <div class="tag-pills-flow editable" id="annotTagsFlow"></div>
                 <input type="text" class="glass-input slim" id="annotTagInput" spellcheck="false">
@@ -325,7 +333,21 @@
                             title="把当前这张图的提示词覆盖到本条目全部图片">应用到全部</button>
                     <button class="mini-btn" id="btnFormatPrompt">分行</button>
                     <button class="mini-btn" id="btnCompactPrompt">单行</button>
-                    <button class="mini-btn accent" id="btnCopyPrompt">复制</button>
+                    <div class="dropdown-wrap">
+                      <button class="mini-btn accent" id="btnCopyPrompt"
+                              title="选择要复制的内容">复制 <span class="caret">▾</span></button>
+                      <div class="glass-dropdown mini" id="copyPromptMenu">
+                        <button type="button" class="dropdown-item" data-copy="annot">
+                          <span>复制标注 Tag</span>
+                        </button>
+                        <button type="button" class="dropdown-item" data-copy="prompt">
+                          <span>复制使用提示词</span>
+                        </button>
+                        <button type="button" class="dropdown-item" data-copy="residual">
+                          <span>复制细分提示词</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <textarea class="glass-textarea code-font" id="fieldFullPrompt" rows="6" spellcheck="false"></textarea>

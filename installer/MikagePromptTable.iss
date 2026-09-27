@@ -12,7 +12,7 @@
 
 #define AppName        "Mikage PromptTable"
 #define AppExeBase     "MikagePromptTable"
-#define AppVersion     "1.0.0"
+#define AppVersion     "1.0.1"
 #define AppPublisher   "Mikage PromptTable"
 #define AppExeName     "MikagePromptTable.exe"
 #define AppDescription "AI 画廊与提示词注释工作台"
